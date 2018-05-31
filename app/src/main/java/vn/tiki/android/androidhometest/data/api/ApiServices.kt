@@ -32,8 +32,7 @@ class ApiServices(private val context: Context) {
         .mapIndexed { index, jsonObject ->
           val name = jsonObject.getString("name")
           val price = jsonObject.getDouble("price")
-//          val thumbnail = "$ASSERT_FILE_PATTERN/data/images/${jsonObject.getString("thumbnail")}"
-            val thumbnail = "data/images/${jsonObject.getString("thumbnail")}"
+          val thumbnail = "$ASSERT_FILE_PATTERN/data/images/${jsonObject.getString("thumbnail")}"
             val now = Calendar.getInstance()
 
           val startedDate = now
@@ -48,7 +47,7 @@ class ApiServices(private val context: Context) {
               }
               .time
 
-           val millisUntilFinished =  endDate.time.minus(startedDate.time)
+           val millisUntilFinished =  endDate.time.minus(Calendar.getInstance().time.time)
 
           Deal(
               name,

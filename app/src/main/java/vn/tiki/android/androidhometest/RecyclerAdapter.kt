@@ -8,15 +8,18 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.recycleview_item.view.*
 import vn.tiki.android.androidhometest.data.api.response.Deal
 import android.os.CountDownTimer
+import android.os.Handler
 import android.widget.ImageView
 import android.widget.TextView
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.PicassoProvider
 import vn.tiki.android.androidhometest.util.getImage
+import java.util.*
 
 
 class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     companion object {
         var mItems: MutableList<Deal>? = mutableListOf<Deal>()
-        var mMapTask: MutableMap<Deal, CountDownTimer> = mutableMapOf<Deal, CountDownTimer>()
         const val COUNTDOWN_INTERVAL: Long = 1000
 
     }
@@ -31,24 +34,28 @@ class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
     }
 
     fun addItem(list: List<Deal>?) {
-        mItems!!.addAll(list!!.toMutableList())
+        mItems?.addAll(list!!.toMutableList())
         notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mItems?.get(position) ?: return
-        holder.imageView.setImageDrawable(context.assets.getImage(item.productThumbnail))
+        Picasso.get().load(item.productThumbnail)
+                .placeholder(R.drawable.abc_item_background_holo_dark)
+                .fit()
+                .into(holder.imageView)
         holder.txtName.text = item.productName
         holder.txtPrice.text = item.productPrice.toString()
-        var countDownTimer = object : CountDownTimer(item.millisUntilFinished, COUNTDOWN_INTERVAL) {
+        if (holder.timer != null) {
+            holder.timer!!.cancel();
+        }
+        item.millisUntilFinished = item.endDate.time - Calendar.getInstance().time.time
+
+        holder.timer = object : CountDownTimer(item.millisUntilFinished, COUNTDOWN_INTERVAL) {
             override fun onFinish() {
                 //Remove item
                 mItems!!.remove(item)
-                //Release all timer
-                releaseAllTask()
-                mMapTask.clear()
-                //Reload all item and timer
-                notifyDataSetChanged()
+                notifyItemRemoved(position)
             }
 
             override fun onTick(millisUntilFinished: Long) {
@@ -56,20 +63,15 @@ class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
                 holder.txtCountdown.text = (millisUntilFinished.div(1000)).toString()
             }
 
-        }
-        mMapTask.put(item, countDownTimer)
-        countDownTimer.start()
-
+        }.start()
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        var timer: CountDownTimer? = null
         val imageView: ImageView = view.imageView
         val txtName: TextView = view.tv_name
         val txtPrice: TextView = view.tv_price
         val txtCountdown: TextView = view.tv_countdown!!
     }
 
-    fun releaseAllTask() {
-        mMapTask.forEach { _, task -> task.cancel() }
-    }
 }

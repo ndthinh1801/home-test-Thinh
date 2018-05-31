@@ -55,7 +55,6 @@ class MainActivity : AppCompatActivity() {
   override fun onDestroy() {
     super.onDestroy()
       task.cancel(true)
-      itemAdapter.releaseAllTask()
     releaseDependencies()
   }
 }
