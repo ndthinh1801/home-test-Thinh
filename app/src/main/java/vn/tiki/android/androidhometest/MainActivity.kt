@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
   val apiServices by inject<ApiServices>()
   private lateinit var gridLayoutManager: GridLayoutManager
     private lateinit var itemAdapter: RecyclerAdapter
+    private lateinit var task : AsyncTask<Unit, Unit, List<Deal>>
 
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,26 +33,28 @@ class MainActivity : AppCompatActivity() {
       recyclerView.itemAnimator = DefaultItemAnimator()
        itemAdapter = RecyclerAdapter(this)
       recyclerView.adapter  = itemAdapter
+      task = LoadServiceAsync(itemAdapter, apiServices).execute()
 
-      object : AsyncTask<Unit, Unit, List<Deal>>() {
-      override fun doInBackground(vararg params: Unit?): List<Deal> {
-        return apiServices.getDeals()
-      }
-
-      override fun onPostExecute(result: List<Deal>?) {
-        super.onPostExecute(result)
-        result.orEmpty()
-            .forEach { deal ->
-              println(deal)
-            }
-          itemAdapter.addItem(result)
-
-      }
-    }.execute()
+//      object : AsyncTask<Unit, Unit, List<Deal>>() {
+//      override fun doInBackground(vararg params: Unit?): List<Deal> {
+//        return apiServices.getDeals()
+//      }
+//
+//      override fun onPostExecute(result: List<Deal>?) {
+//        super.onPostExecute(result)
+//        result.orEmpty()
+//            .forEach { deal ->
+//              println(deal)
+//            }
+//          itemAdapter.addItem(result)
+//
+//      }
+//    }.execute()
   }
 
   override fun onDestroy() {
     super.onDestroy()
+      task.cancel(true)
       itemAdapter.releaseAllTask()
     releaseDependencies()
   }
