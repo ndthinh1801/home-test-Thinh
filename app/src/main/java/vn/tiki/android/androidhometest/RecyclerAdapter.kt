@@ -55,7 +55,7 @@ class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
             override fun onFinish() {
                 //Remove item
                 mItems!!.remove(item)
-                notifyItemRemoved(position)
+                notifyDataSetChanged()
             }
 
             override fun onTick(millisUntilFinished: Long) {
