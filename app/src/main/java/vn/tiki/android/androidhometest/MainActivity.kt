@@ -54,7 +54,19 @@ class MainActivity : AppCompatActivity() {
 
   override fun onDestroy() {
     super.onDestroy()
+      recyclerView.adapter = null
       task.cancel(true)
     releaseDependencies()
+  }
+
+    override fun onStop() {
+        super.onStop()
+        recyclerView.adapter = null
+
+    }
+
+  override fun onRestart() {
+    super.onRestart()
+    recyclerView.adapter = itemAdapter
   }
 }

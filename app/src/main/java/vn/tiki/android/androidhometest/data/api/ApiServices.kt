@@ -47,15 +47,12 @@ class ApiServices(private val context: Context) {
               }
               .time
 
-           val millisUntilFinished =  endDate.time.minus(Calendar.getInstance().time.time)
-
           Deal(
               name,
               thumbnail,
               price,
               startedDate,
-              endDate,
-              millisUntilFinished
+              endDate
           )
         }
         .toList()

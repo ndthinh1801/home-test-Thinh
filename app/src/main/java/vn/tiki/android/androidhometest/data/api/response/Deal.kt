@@ -7,6 +7,5 @@ class Deal(
     val productThumbnail: String,
     val productPrice: Double,
     val startedDate: Date,
-    val endDate: Date,
-    var millisUntilFinished: Long
+    val endDate: Date
 )

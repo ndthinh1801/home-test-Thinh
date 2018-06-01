@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.recycleview_item.view.*
 import vn.tiki.android.androidhometest.data.api.response.Deal
 import android.os.CountDownTimer
 import android.os.Handler
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import com.squareup.picasso.Picasso
@@ -20,6 +21,7 @@ import java.util.*
 class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     companion object {
         var mItems: MutableList<Deal>? = mutableListOf<Deal>()
+        var mListTimer: MutableList<CountDownTimer>? = mutableListOf()
         const val COUNTDOWN_INTERVAL: Long = 1000
 
     }
@@ -49,9 +51,10 @@ class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
         if (holder.timer != null) {
             holder.timer!!.cancel();
         }
-        item.millisUntilFinished = item.endDate.time - Calendar.getInstance().time.time
+        val period = item.endDate.time - Calendar.getInstance().time.time
 
-        holder.timer = object : CountDownTimer(item.millisUntilFinished, COUNTDOWN_INTERVAL) {
+
+        holder.timer = object : CountDownTimer(period, COUNTDOWN_INTERVAL) {
             override fun onFinish() {
                 //Remove item
                 mItems!!.remove(item)
@@ -59,11 +62,22 @@ class RecyclerAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                item.millisUntilFinished = millisUntilFinished
+                Log.d("RecyclerAdapter", "onTick $millisUntilFinished")
                 holder.txtCountdown.text = (millisUntilFinished.div(1000)).toString()
             }
 
         }.start()
+        holder.timer?.let {  mListTimer?.add(it) }
+    }
+
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView)
+        mListTimer.orEmpty().forEach { timer -> timer.cancel() }
+    }
+
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
